@@ -12,7 +12,7 @@ import java.io.File;
 import java.util.Arrays;
 
 public abstract  class PCModule implements IResourceReloadLisener {
-    public static final String POWERCRAFT = "PowerCraft";
+    public static final String POWERCRAFT = "powercraft";
     public static final String POWERCRAFT_LOGOFILE = "/powercraft/PowerCraft.png";
     public static final String[] POWERCRAFT_AUTHORS = { "XOR", "Rapus95", "Buggi", "zcraftler","Rumaruka"};
     public static final String POWERCRAFT_CREDITS = "MightyPork, RxD, LOLerul2";
@@ -33,8 +33,8 @@ public abstract  class PCModule implements IResourceReloadLisener {
         metadata.description = PCLangHelper.translate("desk."+this.mod.getName());
         metadata.authorList = Arrays.asList(POWERCRAFT_AUTHORS);
         metadata.credits = POWERCRAFT_CREDITS;
-        if (PCApi.INSTANCE != null)
-            PCApi.INSTANCE.getMetadata().childMods.add(PCUtils.getActiveMod());
+        if (PCApi.instance != null)
+            PCApi.instance.getMetadata().childMods.add(PCUtils.getActiveMod());
         this.config = new Configuration(new File(Loader.instance().getConfigDir(), this.mod.getName()
                 + ".cfg"));
         this.config.load();
