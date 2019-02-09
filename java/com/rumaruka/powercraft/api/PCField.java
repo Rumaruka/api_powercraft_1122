@@ -8,13 +8,13 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface PCField {
-    public String name() default "";
+     String name() default "";
 
-    public Flag[] flags() default {Flag.SAVE};
+     Flag[] flags() default {Flag.SAVE};
 
-    public boolean notNull() default false;
+     boolean notNull() default false;
 
-    public static enum Flag{
+      enum Flag{
         SAVE, SYNC;
 
         public boolean isIn(PCField info) {

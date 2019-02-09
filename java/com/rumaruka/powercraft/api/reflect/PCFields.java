@@ -36,7 +36,7 @@ public class PCFields {
     public static final int INDEX_GuiMainMenu_notificationLink = 10;
     public static final int INDEX_ShapedOreRecipe_width = 4;
 
-    public static final PCReflectionField<NetHandlerPlayServer, IntHashMap> NetHandlerPlayServer_field_147372_n = new PC_ReflectionField<NetHandlerPlayServer, IntHashMap>(NetHandlerPlayServer.class, INDEX_NetHandlerPlayServer_field_147372_n, IntHashMap.class);
+    public static final PCReflectionField<NetHandlerPlayServer, IntHashMap> NetHandlerPlayServer_field_147372_n = new PCReflectionField<NetHandlerPlayServer, IntHashMap>(NetHandlerPlayServer.class, INDEX_NetHandlerPlayServer_field_147372_n, IntHashMap.class);
     public static final PCReflectionField<EntityLivingBase, Integer> EntityLivingBase_recentlyHit = new PCReflectionField<EntityLivingBase, Integer>(EntityLivingBase.class, INDEX_EntityLivingBase_recentlyHit, int.class);
     public static final PCReflectionField<EntityXPOrb, EntityPlayer> EntityXPOrb_closestPlayer = new PCReflectionField<EntityXPOrb, EntityPlayer>(EntityXPOrb.class, INDEX_EntityXPOrb_closestPlayer, EntityPlayer.class);
     public static final PCReflectionField<EntityXPOrb, Integer> EntityXPOrb_xpTargetColor = new PCReflectionField<EntityXPOrb, Integer>(EntityXPOrb.class, INDEX_EntityXPOrb_xpTargetColor, int.class);

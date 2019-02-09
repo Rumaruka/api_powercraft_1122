@@ -250,8 +250,7 @@ public class PCReflect {
             }catch(Exception ee){
                 if(AccessibleObject_setAccessible0==null){
                     try{
-                        AccessibleObject_setAccessible0 = (Method) ReflectionHelper.findMethod(AccessibleObject.class, ao, new String[]{"setAccessible0"}, AccessibleObject.class,boolean.class);
-                        AccessibleObject_setAccessible0.invoke(null, ao, Boolean.TRUE);
+
                     }catch(Exception eee){/**/}
                 }
             }
@@ -273,7 +272,7 @@ public class PCReflect {
 
     public static Object processFields(Object obj, PCProcessor processor){
         Class<?> c = obj.getClass();
-        EnumMap<Result, Object> results = new EnumMap<Result, Object>(Result.class);
+        EnumMap<PCProcessor.Result, Object> results = new EnumMap<PCProcessor.Result, Object>(PCProcessor.Result.class);
         while(c!=Object.class){
             Field[] fields = PCReflect.getDeclaredFields(c);
             for(Field field:fields){
@@ -282,11 +281,11 @@ public class PCReflect {
                     setAccessible(field);
                     Object value = field.get(obj);
                     processor.process(field, value, results);
-                    if(results.containsKey(Result.SET)){
-                        field.set(obj, results.get(Result.SET));
+                    if(results.containsKey(PCProcessor.Result.SET)){
+                        field.set(obj, results.get(PCProcessor.Result.SET));
                     }
-                    if(results.containsKey(Result.STOP)){
-                        return results.get(Result.STOP);
+                    if(results.containsKey(PCProcessor.Result.STOP)){
+                        return results.get(PCProcessor.Result.STOP);
                     }
                 } catch(SecurityException se){
                     onSecurityException(se);

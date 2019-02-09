@@ -1,6 +1,7 @@
 package com.rumaruka.powercraft.api.version;
 
 import com.rumaruka.powercraft.api.PCLogger;
+import com.rumaruka.powercraft.api.xml.PCXMLLoader;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,7 +1,10 @@
 package com.rumaruka.powercraft.api.version;
 
+import com.rumaruka.powercraft.api.xml.PCXMLNode;
+import com.rumaruka.powercraft.api.xml.PCXMLProperty;
 import net.minecraftforge.fml.common.Loader;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -47,7 +50,7 @@ public class PCUpdateInfo {
                 if(modules.containsKey(name)){
                     throw new IllegalArgumentException();
                 }
-                List<PCVersionInfo> versions = new ArrayList<PC_VersionInfo>();
+                List<PCVersionInfo> versions = new ArrayList<PCVersionInfo>();
                 modules.put(name, versions);
                 for(int j=0; j<c.getChildCount(); j++){
                     PCXMLNode v = c.getChild(j);

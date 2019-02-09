@@ -1,5 +1,6 @@
 package com.rumaruka.powercraft.api;
 
+import com.rumaruka.powercraft.api.reflect.PCFields;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.entity.Entity;

@@ -2,7 +2,7 @@ package com.rumaruka.powercraft.api.reflect;
 
 import java.lang.reflect.Field;
 
-public class PCReflectionField<T, T1> {
+public class PCReflectionField<C,T> {
     public final Class<C> clasz;
     public final int index;
     public final Class<T> type;

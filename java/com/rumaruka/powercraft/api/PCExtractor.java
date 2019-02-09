@@ -84,8 +84,6 @@ public class PCExtractor {
             fis.close();
             fos.close();
             return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
