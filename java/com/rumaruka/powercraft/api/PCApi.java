@@ -1,6 +1,11 @@
 package com.rumaruka.powercraft.api;
 
 
+import com.rumaruka.powercraft.api.dimension.PCDimensions;
+import com.rumaruka.powercraft.api.gres.PCGres;
+import com.rumaruka.powercraft.api.multiblock.PCMultiblocks;
+import com.rumaruka.powercraft.api.network.PCPacketHandler;
+import com.rumaruka.powercraft.api.script.miniscript.PCMiniscript;
 import com.rumaruka.powercraft.core.PCCore_Core;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
@@ -52,7 +57,7 @@ public class PCApi extends PCModule {
     public void preInit(FMLPreInitializationEvent event) {
 
         PCModules.construct();
-/*
+
         PCPacketHandler.register();
         PCTickHandler.register();
         PCForgeHandler.register();
@@ -73,7 +78,7 @@ public class PCApi extends PCModule {
         PCEntities.construct();
 
         PCBlocks.initRecipes();
-        PCItems.initRecipes();*/
+        PCItems.initRecipes();
     }
 
 
@@ -86,13 +91,13 @@ public class PCApi extends PCModule {
     @SuppressWarnings({ "unused", "static-method" })
     @Mod.EventHandler
     public void postInit(FMLPostInitializationEvent event) {
-      //  PCMiniscript.loadDefaultReplacements();
+        PCMiniscript.loadDefaultReplacements();
         PCModules.saveConfig();
     }
     @SuppressWarnings({ "static-method", "unused" })
     @Mod.EventHandler
     public void onServerStopping(FMLServerStoppedEvent serverStoppedEvent){
-      //  PCWorldSaveData.onServerStopping();
+        PCWorldSaveData.onServerStopping();
     }
     public static ItemStack creativTabItemStack;
 

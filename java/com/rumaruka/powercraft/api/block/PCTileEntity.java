@@ -4,16 +4,30 @@ import com.rumaruka.powercraft.api.*;
 import com.rumaruka.powercraft.api.PCField.Flag;
 import com.rumaruka.powercraft.api.beam.EnumBeamHitResult;
 import com.rumaruka.powercraft.api.beam.IBeam;
+import com.rumaruka.powercraft.api.gres.IGresGuiOpenHandler;
+import com.rumaruka.powercraft.api.gres.PCGres;
 import com.rumaruka.powercraft.api.gres.PCGresBaseWithInventory;
+import com.rumaruka.powercraft.api.grid.IGridHolder;
 import com.rumaruka.powercraft.api.network.PCPacket;
 import com.rumaruka.powercraft.api.network.PCPacketHandler;
+import com.rumaruka.powercraft.api.redstone.PCRedstoneWorkType;
 import com.rumaruka.powercraft.api.reflect.PCProcessor;
 import com.rumaruka.powercraft.api.reflect.PCReflect;
 import net.minecraft.block.Block;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.EnumCreatureType;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Container;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.Packet;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -23,7 +37,7 @@ import java.util.*;
 public class PCTileEntity extends TileEntity {
 
     private static WeakHashMap<EntityPlayer, Session> sessions = new WeakHashMap<EntityPlayer, Session>();
-    private static WeakHashMap<PCTileEntity, List<PCGresBaseWithInventory>> containers = new WeakHashMap<PC_TileEntity, List<PC_GresBaseWithInventory>>();
+    private static WeakHashMap<PCTileEntity, List<PCGresBaseWithInventory>> containers = new WeakHashMap<PCTileEntity, List<PCGresBaseWithInventory>>();
 
     private static class Session {
 
@@ -75,8 +89,8 @@ public class PCTileEntity extends TileEntity {
     }
 
     public void onBreak() {
-        if (this instanceof IGridHolderPC) {
-            ((IGridHolderPC) this).removeFromGrid();
+        if (this instanceof IGridHolder) {
+            ((IGridHolder) this).removeFromGrid();
         }
     }
 
@@ -107,7 +121,7 @@ public class PCTileEntity extends TileEntity {
         if (this.workWhen == null)
             return;
         switch (this.workWhen) {
-            case ON_FLANK:
+            case ON_FLACK:
                 if ((newValue == 0 && oldValue != 0) || (newValue != 0 && oldValue == 0)) {
                     startWorking();
                     doWork();
@@ -169,8 +183,8 @@ public class PCTileEntity extends TileEntity {
     public final void updateTile() {
         if (isInvalid())
             return;
-        if (this instanceof PC_IGridHolder) {
-            ((PC_IGridHolder) this).getGridIfNull();
+        if (this instanceof IGridHolder) {
+            ((IGridHolder) this).getGridIfNull();
         }
         if (isWorking()) {
             doWork();
@@ -194,18 +208,18 @@ public class PCTileEntity extends TileEntity {
     }
 
     public void notifyNeighbors() {
-        if (this.worldObj != null)
-            this.worldObj.notifyBlocksOfNeighborChange(this.xCoord, this.yCoord, this.zCoord, getBlockType());
+        if (this.world != null)
+            this.world.notifyBlocksOfNeighborChange(this.xCoord, this.yCoord, this.zCoord, getBlockType());
     }
 
     public void renderUpdate() {
-        if (this.worldObj != null)
-            this.worldObj.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
+        if (this.world != null)
+            this.world.markBlockForUpdate(this.xCoord, this.yCoord, this.zCoord);
     }
 
     public void lightUpdate() {
-        if (this.worldObj != null)
-            this.worldObj.func_147451_t(this.xCoord, this.yCoord, this.zCoord);
+        if (this.world != null)
+            this.world.func_147451_t(this.xCoord, this.yCoord, this.zCoord);
     }
 
     @SuppressWarnings({ "static-method", "unused" })
@@ -224,7 +238,7 @@ public class PCTileEntity extends TileEntity {
     }
 
     @SuppressWarnings("unused")
-    public void velocityToAddToEntity(Entity entity, Vec3 velocity) {
+    public void velocityToAddToEntity(Entity entity, Vec3d velocity) {
         //
     }
 
@@ -243,9 +257,7 @@ public class PCTileEntity extends TileEntity {
         //
     }
 
-    public int getDamageValue() {
-        return getBlockType().damageDropped(this.blockMetadata);
-    }
+
 
     public void fillWithRain() {
         //
@@ -287,15 +299,10 @@ public class PCTileEntity extends TileEntity {
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    public ItemStack getPickBlock(MovingObjectPosition target) {
+    public ItemStack getPickBlock(RayTraceResult target) {
         return null;
     }
 
-    @SuppressWarnings({ "static-method", "unused" })
-    @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffects(EffectRenderer effectRenderer) {
-        return false;
-    }
 
     @SuppressWarnings("unused")
     public void onPlantGrow(int sourceX, int sourceY, int sourceZ) {
@@ -333,20 +340,17 @@ public class PCTileEntity extends TileEntity {
     }
 
     @SuppressWarnings("unused")
-    public void onBlockPostSet(PC_Direction side, ItemStack stack, EntityPlayer player, float hitX, float hitY,
+    public void onBlockPostSet(PCDirection side, ItemStack stack, EntityPlayer player, float hitX, float hitY,
                                float hitZ) {
         //
     }
 
     @SuppressWarnings("static-method")
-    public PC_3DRotation get3DRotation() {
+    public IPC3DRotation get3DRotation() {
         return null;
     }
 
-    @SuppressWarnings({ "static-method", "unused" })
-    public IIcon getIcon(PC_Direction side) {
-        return null;
-    }
+
 
     @SuppressWarnings({ "static-method", "unused" })
     public List<AxisAlignedBB> getCollisionBoundingBoxes(Entity entity) {
@@ -365,19 +369,19 @@ public class PCTileEntity extends TileEntity {
     }
 
     @SuppressWarnings("unused")
-    public boolean onBlockActivated(EntityPlayer player, PC_Direction side) {
+    public boolean onBlockActivated(EntityPlayer player, PCDirection side) {
 
-        if (this instanceof PC_IGresGuiOpenHandler) {
+        if (this instanceof IGresGuiOpenHandler) {
 
             if (!isClient()) {
 
                 if (canDoWithoutPassword(player)) {
 
-                    PC_Gres.openGui(player, this);
+                    PCGres.openGui(player, this);
 
                 } else if (canDoWithPassword(player)) {
 
-                    PC_PacketHandler.sendTo(new PC_PacketPasswordRequest(this), (EntityPlayerMP) player);
+                    PCPacketHandler.sendTo(new PCPacketPasswordRequest(this), (EntityPlayerMP) player);
 
                 }
 
@@ -391,32 +395,32 @@ public class PCTileEntity extends TileEntity {
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    public int getComparatorInput(PC_Direction side) {
+    public int getComparatorInput(PCDirection side) {
         return 0;
     }
 
     @SuppressWarnings("unused")
-    public boolean isSideSolid(PC_Direction side) {
-        return getBlockType().isNormalCube(this.worldObj, this.xCoord, this.yCoord, this.zCoord);
+    public boolean isSideSolid(PCDirection side) {
+        return getBlockType().isNormalCube(getBlockType().getDefaultState(),this.world, this.pos);
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    public int getFlammability(PC_Direction side) {
+    public int getFlammability(PCDirection side) {
         return 0;
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    public boolean isFlammable(PC_Direction side) {
+    public boolean isFlammable(PCDirection side) {
         return false;
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    public int getFireSpreadSpeed(PC_Direction side) {
+    public int getFireSpreadSpeed(PCDirection side) {
         return 0;
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    public boolean isFireSource(PC_Direction side) {
+    public boolean isFireSource(PCDirection side) {
         return false;
     }
 
@@ -426,17 +430,17 @@ public class PCTileEntity extends TileEntity {
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    public boolean canSustainPlant(PC_Direction side, IPlantable plantable) {
+    public boolean canSustainPlant(PCDirection side, IPlantable plantable) {
         return false;
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    public boolean recolourBlock(PC_Direction side, int colour) {
+    public boolean recolourBlock(PCDirection side, int colour) {
         return false;
     }
 
     @SuppressWarnings("unused")
-    public boolean shouldCheckWeakPower(PC_Direction side) {
+    public boolean shouldCheckWeakPower(PCDirection side) {
         return getBlockType().isNormalCube();
     }
 
@@ -451,7 +455,7 @@ public class PCTileEntity extends TileEntity {
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    public boolean set3DRotation(PC_3DRotation rotation) {
+    public boolean set3DRotation(IPC3DRotation rotation) {
         return false;
     }
 
@@ -470,10 +474,10 @@ public class PCTileEntity extends TileEntity {
     }
 
     public void sendProgressBarUpdate(int key, int value) {
-        List<PC_GresBaseWithInventory> list = containers.get(this);
+        List<PCGresBaseWithInventory> list = containers.get(this);
         if (list == null)
             return;
-        for (PC_GresBaseWithInventory container : list) {
+        for (PCGresBaseWithInventory container : list) {
             container.sendProgressBarUpdate(key, value);
         }
     }
@@ -773,15 +777,15 @@ public class PCTileEntity extends TileEntity {
 
     @SuppressWarnings("unused")
     public void onAdded(EntityPlayer player) {
-        if (this instanceof IGridHolderPC) {
-            ((IGridHolderPC) this).getGridIfNull();
+        if (this instanceof IGridHolder) {
+            ((IGridHolder) this).getGridIfNull();
         }
     }
 
     @Override
     public void onChunkUnload() {
-        if (this instanceof IGridHolderPC) {
-            ((IGridHolderPC) this).removeFromGrid();
+        if (this instanceof IGridHolder) {
+            ((IGridHolder) this).removeFromGrid();
         }
     }
 

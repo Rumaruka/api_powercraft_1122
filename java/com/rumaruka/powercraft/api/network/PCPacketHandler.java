@@ -17,6 +17,7 @@ import net.minecraft.network.INetHandler;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.network.FMLEmbeddedChannel;
@@ -42,7 +43,35 @@ public class PCPacketHandler extends SimpleChannelInboundHandler<PCPacket> {
     static{
         packetID.put(PCPacketPacketResolve.class, 0);
     }
-
+    public static void register(){
+        PCSecurity.allowedCaller("PC_PacketHandler.register()", PCApi.class);
+        if(channels==null){
+            channels = NetworkRegistry.INSTANCE.newChannel("PowerCraft", new Indexer());
+            FMLEmbeddedChannel channel = channels.get(Side.CLIENT);
+            channel.pipeline().addAfter(channel.findChannelHandlerNameForType(Indexer.class), PCPacketHandler.class.getName(), new PCPacketHandler(PC_Side.CLIENT));
+            channel = channels.get(Side.SERVER);
+            channel.pipeline().addAfter(channel.findChannelHandlerNameForType(Indexer.class), PCPacketHandler.class.getName(), new PCPacketHandler(PC_Side.SERVER));
+            FMLCommonHandler.instance().bus().register(new Listener());
+            PCPacketHandler.registerPacket(PCPacketTileEntitySync.class);
+            PCPacketHandler.registerPacket(PCPacketPasswordRequest.class);
+            PCPacketHandler.registerPacket(PCPacketPasswordReply.class);
+            PCPacketHandler.registerPacket(PCPacketWrongPassword.class);
+            PCPacketHandler.registerPacket(PCPacketPasswordRequest2.class);
+            PCPacketHandler.registerPacket(PCPacketPasswordReply2.class);
+            PCPacketHandler.registerPacket(PCPacketWrongPassword2.class);
+            PCPacketHandler.registerPacket(PCPacketTileEntityMessageCTS.class);
+            PCPacketHandler.registerPacket(PCPacketTileEntityMessageSTC.class);
+            PCPacketHandler.registerPacket(PCPacketTileEntityMessageIntCTS.class);
+            PCPacketHandler.registerPacket(PCPacketEntityMessageCTS.class);
+            PCPacketHandler.registerPacket(PCPacketEntityMessageSTC.class);
+            PCPacketHandler.registerPacket(PCPacketEntitySync.class);
+            PCPacketHandler.registerPacket(PCPacketSetSlot.class);
+            PCPacketHandler.registerPacket(PCPacketWindowItems.class);
+            PCPacketHandler.registerPacket(PCPacketClickWindow.class);
+            PCPacketHandler.registerPacket(PCPacketBlockBreaking.class);
+            PCPacketHandler.registerPacket(PCCtrlPressed.Packet.class);
+        }
+    }
 
     public static class Listener{
 
@@ -135,7 +164,7 @@ public class PCPacketHandler extends SimpleChannelInboundHandler<PCPacket> {
             PCLogger.severe("YOU HAVE TO REGISTER CLASS %s", packet.getClass());
             return;
         }
-        buf.writeInt(id.intValue());
+        buf.writeInt(id);
         packet.toByteBuffer(buf);
     }
 
@@ -147,11 +176,11 @@ public class PCPacketHandler extends SimpleChannelInboundHandler<PCPacket> {
         packets = new Class[packetClasses.length+1];
         packetID.clear();
         packets[0] = PCPacketPacketResolve.class;
-        packetID.put(PCPacketPacketResolve.class, Integer.valueOf(0));
+        packetID.put(PCPacketPacketResolve.class, 0);
         for(int i=1; i<packets.length; i++){
             try {
                 packets[i] = (Class<? extends PCPacket>) Class.forName(packetClasses[i-1]);
-                packetID.put(packets[i], Integer.valueOf(i));
+                packetID.put(packets[i], i);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -188,7 +217,7 @@ public class PCPacketHandler extends SimpleChannelInboundHandler<PCPacket> {
     public static void sendToDimension(PCPacket packet, int dimension){
         checkServer(packet);
         channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGET).set(FMLOutboundHandler.OutboundTarget.DIMENSION);
-        channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(Integer.valueOf(dimension));
+        channels.get(Side.SERVER).attr(FMLOutboundHandler.FML_MESSAGETARGETARGS).set(dimension);
         channels.get(Side.SERVER).writeAndFlush(packet).addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
     }
 
