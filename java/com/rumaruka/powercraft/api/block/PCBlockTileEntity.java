@@ -14,7 +14,7 @@ public abstract class PCBlockTileEntity extends AbstractBlockBase implements ITi
         super(materialIn);
     }
     public PCBlockTileEntity(EnumBlockType type){
-        super(type);
+        super(type.material);
     }
 
     public abstract Class<? extends PCTileEntity> getTileEntityClass();

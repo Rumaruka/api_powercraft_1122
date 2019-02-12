@@ -1,6 +1,7 @@
 package com.rumaruka.powercraft.api.network.packet;
 
 import com.rumaruka.powercraft.api.PCUtils;
+import com.rumaruka.powercraft.api.entity.IEntityPC;
 import com.rumaruka.powercraft.api.network.PCPacket;
 import com.rumaruka.powercraft.api.network.PCPacketServerToClient;
 import io.netty.buffer.ByteBuf;
@@ -18,13 +19,13 @@ public class PCPacketEntityMessageSTC extends PCPacketServerToClient {
 
     }
 
-    public PCPacketEntityMessageSTC(IEntity entity, NBTTagCompound nbtTagCompound){
+    public PCPacketEntityMessageSTC(IEntityPC entity, NBTTagCompound nbtTagCompound){
         this.entityID = entity.getEntityId();
         this.nbtTagCompound = nbtTagCompound;
     }
     @Override
     protected PCPacket doAndReply(NetHandlerPlayClient playClient, World world, EntityPlayer player) {
-        IEntity entity = PCUtils.getEntity(world, this.entityID, IEntity.class);
+        IEntityPC entity = PCUtils.getEntity(world, this.entityID, IEntityPC.class);
         if(entity!=null){
             entity.onClientMessage(player, this.nbtTagCompound);
         }

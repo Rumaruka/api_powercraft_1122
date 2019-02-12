@@ -33,11 +33,13 @@ public abstract class AbstractBlockBase extends Block implements IRedstoneConnec
     private boolean constructed;
     public AbstractBlockBase(Material materialIn) {
         super(materialIn);
-        PCBlocks.addBlock();
+        PCBlocks.addBlock(this);
         this.module= PCUtils.getActiveMod();
     }
 
+    public abstract boolean canRotate();
 
+    public abstract boolean canRotate(IBlockAccess world, int x, int y, int z);
     @SuppressWarnings("static-method")
     public Class<? extends PCItemBlock> getItemBlock(){
         return PCItemBlock.class;
@@ -115,13 +117,13 @@ public abstract class AbstractBlockBase extends Block implements IRedstoneConnec
         List<AxisAlignedBB> boxes = getCollisionBoundingBoxes(world, x, y, z, entity);
         if(boxes==null){
             AxisAlignedBB b = getCollisionBoundingBoxFromPool(world, x, y, z);
-            if(b.intersectsWith(box)){
+            if(b.intersects(box)){
                 list.add(b);
             }
         }else{
             for(AxisAlignedBB b:boxes){
-                b = PCUtils.rotateAABB(world, x, y, z, b).offset(x, y, z);
-                if(b.intersectsWith(box)){
+                b = PCUtils.rotateAABB(world, pos.getX(),pos.getY(),pos.getZ(), b).offset(pos);
+                if(b.intersects(box)){
                     list.add(b);
                 }
             }

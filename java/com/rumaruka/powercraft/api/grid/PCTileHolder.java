@@ -14,7 +14,7 @@ public abstract class PCTileHolder <G extends PCGrid<G, T, N, E>, T extends IGri
 
     protected abstract N getAsNode(T tile);
 
-    protected abstract List<T> getTile();
+    protected abstract  List<T> getTile();
 
     protected abstract void markVisible(List<N> visibleNode, List<E> visibleEdges);
 
