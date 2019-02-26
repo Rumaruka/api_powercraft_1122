@@ -1,11 +1,15 @@
 package com.rumaruka.powercraft.api;
 
 import com.rumaruka.powercraft.api.block.AbstractBlockBase;
-import com.rumaruka.powercraft.api.building.PCBuild;
+import com.rumaruka.powercraft.api.block.PCBlock;
+import com.rumaruka.powercraft.api.block.PCBlockTileEntity;
+import com.rumaruka.powercraft.api.block.PCTileEntity;
 import com.rumaruka.powercraft.api.building.PCBuild.ItemStackSpawn;
+import com.rumaruka.powercraft.api.inventory.PCInventoryUtils;
 import com.rumaruka.powercraft.api.reflect.PCFields;
 import com.rumaruka.powercraft.api.reflect.PCReflect;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -21,16 +25,20 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.GameType;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.Biome;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 
@@ -39,6 +47,7 @@ import java.io.File;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PCUtils {
@@ -136,6 +145,26 @@ public class PCUtils {
         return setBlock(world, pos, Blocks.AIR);
     }
 
+    public static IBlockState getMetadata(IBlockAccess w, BlockPos pos){
+        return w.getBlockState(pos);
+    }
+    public static IBlockState getMetadata(IBlockAccess world, PCVec3I pos) {
+        return getMetadata(world, new BlockPos(pos.x, pos.y, pos.z));
+    }
+    public static boolean setMetadata(World world, int x, int y, int z, int metadata) {
+
+        IBlockState state = world.getBlockState(new BlockPos(x,y,z));
+
+
+        return setMetadata(world, x, y, z, state, BLOCK_NOTIFY | BLOCK_UPDATE);
+    }
+
+    public static boolean setMetadata(World world, int x, int y, int z, IBlockState metadata, int flag) {
+
+
+        return world.setBlockState(new BlockPos(x, y, z), metadata, flag);
+    }
+
     public static boolean isServer() {
         return getSide() == PCSide.SERVER;
     }
@@ -177,6 +206,8 @@ public class PCUtils {
     public static <T> T getItem(String name, Class<T> c) {
         return as(Item.REGISTRY.getObject(new ResourceLocation(name)), c);
     }
+
+
 
     public static PCModule getActiveModule() {
         ModContainer container = Loader.instance().activeModContainer();
@@ -271,18 +302,7 @@ public class PCUtils {
             creativeTabList.add(PCApi.instance.getCreativeTab());
         return creativeTabList.toArray(new CreativeTabs[creativeTabList.size()]);
     }
-    public static AxisAlignedBB rotateAABB(IBlockAccess world, int x, int y, int z, AxisAlignedBB box) {
-        Block block = getBlock(world, new BlockPos(x,y,z));
-        if (block instanceof AbstractBlockBase) {
-            if (((AbstractBlockBase) block).canRotate(world, x, y, z)) {
-                IPC3DRotation rotation = ((AbstractBlockBase) block).getRotation(world, x, y, z);
-                if (rotation != null) {
-                    return rotation.rotateBox(box);
-                }
-            }
-        }
-        return box;
-    }
+
     public static int getRedstoneValue(World world, int x, int y, int z) {
         return world.getStrongPower(new BlockPos(x, y, z));
     }
@@ -295,16 +315,41 @@ public class PCUtils {
         return getGameTypeFor(entityPlayer).isCreative();
     }
 
-    public static void notifyBlockOfNeighborChange(World world, int x, int y, int z, Block neightbor) {
-        Block block = getBlock(world, x, y, z);
+    public static void notifyBlockOfNeighborChange(World world, int x, int y, int z, BlockPos neightbor) {
+        Block block = getBlock(world,new BlockPos( x, y, z));
         if (block != null) {
-            block.onNeighborBlockChange(world, x, y, z, neightbor);
+            block.onNeighborChange(world, new BlockPos(x, y, z), neightbor);
         }
     }
 
     public static void notifyBlockChange(World world, int x, int y, int z, Block block) {
-        world.notifyBlockChange(x, y, z, block);
+        world.notifyBlockUpdate(new BlockPos(x, y, z), block.getDefaultState(),block.getDefaultState(),3);
     }
+
+    public static EnumFacing[] getValidRotations(World world, int x, int y, int z) {
+        Block block = getBlock(world, new BlockPos(x, y, z));
+        if (block instanceof PCBlock) {
+            if (((AbstractBlockBase) block).canRotate(world, x, y, z)) {
+                if (block instanceof PCBlock) {
+                    return new EnumFacing[] { EnumFacing.UP, EnumFacing.DOWN };
+                } else if (block instanceof PCBlockTileEntity) {
+                    PCTileEntity te = getTileEntity(world, new BlockPos(x, y, z), PCTileEntity.class);
+                    if (te != null) {
+                        IPC3DRotation rotation = te.get3DRotation();
+                        if (rotation != null) {
+                            return rotation.getValidRotations();
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+
+
+
+
 
 
 
@@ -320,8 +365,103 @@ public class PCUtils {
     }
 
 
+    public static PCDirection getSidePosition(IBlockAccess world, int x, int y, int z, EnumFacing side) {
+        return getSidePosition(world, x, y, z, PCDirection.fromForgeDirection(side));
+    }
 
+    public static PCDirection getSidePosition(IBlockAccess world, int x, int y, int z, int side) {
+        return getSidePosition(world, x, y, z, PCDirection.fromSide(side));
+    }
 
+    public static PCDirection getSidePosition(IBlockAccess world, int x, int y, int z, PCDirection side) {
+        Block block = getBlock(world, new BlockPos(x, y, z));
+        if (block instanceof AbstractBlockBase) {
+            if (((AbstractBlockBase) block).canRotate(world, x, y, z)) {
+                IPC3DRotation rotation = ((AbstractBlockBase) block).getRotation(world, x, y, z);
+                if (rotation != null) {
+                    return rotation.getSidePosition(side);
+                }
+                return PCDirection.UNKNOWN;
+            }
+        }
+        return side;
+    }
+
+    public static PCDirection getSidePositionInv(IBlockAccess world, int x, int y, int z, int side) {
+        return getSidePositionInv(world, x, y, z, PCDirection.fromSide(side));
+    }
+
+    public static PCDirection getSidePositionInv(IBlockAccess world, int x, int y, int z, PCDirection side) {
+        Block block = getBlock(world, new BlockPos(x, y, z));
+        if (block instanceof AbstractBlockBase) {
+            if (((AbstractBlockBase) block).canRotate(world, x, y, z)) {
+                IPC3DRotation rotation = ((AbstractBlockBase) block).getRotation(world, x, y, z);
+                if (rotation != null) {
+                    return rotation.getSidePositionInv(side);
+                }
+                return PCDirection.UNKNOWN;
+            }
+        }
+        return side;
+    }
+
+    public static int getRotation(Entity entity) {
+        return PCMathHelper.floor_double(entity.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
+    }
+
+    public static int getRotationMetadata(int metadata, Entity entity) {
+        return (getRotation(entity) << 2) | (metadata & 3);
+    }
+
+    public static AxisAlignedBB rotateAABB(IBlockAccess world, int x, int y, int z, AxisAlignedBB box) {
+        Block block = getBlock(world,new BlockPos( x, y, z));
+        if (block instanceof AbstractBlockBase) {
+            if (((AbstractBlockBase) block).canRotate(world, x, y, z)) {
+                IPC3DRotation rotation = ((AbstractBlockBase) block).getRotation(world, x, y, z);
+                if (rotation != null) {
+                    return rotation.rotateBox(box);
+                }
+            }
+        }
+        return box;
+    }
+
+    public static boolean rotateBlock(World world, int x, int y, int z, PCDirection side) {
+        Block block = getBlock(world, new BlockPos(x, y, z));
+        if (block instanceof PCBlock) {
+            if (((AbstractBlockBase) block).canRotate(world, x, y, z)) {
+                if (block instanceof PCBlock) {
+                    IBlockState meta = getMetadata(world,new BlockPos(x,y,z));
+                    int metadata = block.getMetaFromState(meta);
+                    int rotation = (metadata >> 2) & 0x3;
+                    if (side == PCDirection.UP) {
+                        rotation++;
+                        if (rotation > 3)
+                            rotation = 0;
+                    } else if (side == PCDirection.DOWN) {
+                        rotation--;
+                        if (rotation < 0)
+                            rotation = 3;
+                    } else {
+                        return false;
+                    }
+                    setMetadata(world, x, y, z, rotation << 2 | (metadata & 3));
+                } else if (block instanceof PCBlockTileEntity) {
+                    PCTileEntity te = getTileEntity(world, new BlockPos( x, y, z), PCTileEntity.class);
+                    if (te != null) {
+                        IPC3DRotation rotation = te.get3DRotation();
+                        if (rotation != null) {
+                            rotation = rotation.rotateAround(side);
+                            if (rotation != null) {
+                                return te.set3DRotation(rotation);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 
     public static String getUsername(EntityPlayer player) {
         return player.getGameProfile().getName();
@@ -474,8 +614,8 @@ public class PCUtils {
     }
 
     public static boolean isBlockReplaceable(World world, int x, int y, int z) {
-        Block block = getBlock(world, x, y, z);
-        if(block.isReplaceable(world, x, y, z))
+        Block block = getBlock(world, new BlockPos(x, y, z));
+        if(block.isReplaceable(world, new BlockPos(x, y, z)))
             return true;
         return block==Blocks.SNOW_LAYER||block == Blocks.VINE || block == Blocks.TALLGRASS || block == Blocks.DEADBUSH;
     }
@@ -492,22 +632,22 @@ public class PCUtils {
     }
 
     public static void sendMessage(EntityPlayer player, String message){
-        sendMessage(player, new ChatComponentText(message));
+        sendMessage(player, new TextComponentString(message));
     }
 
     public static void sendMessageToTranslate(EntityPlayer player, String message, Object...args){
-        sendMessage(player, new ChatComponentTranslation(message, args));
+        sendMessage(player, new TextComponentTranslation(message, args));
     }
 
-    public static void sendMessage(EntityPlayer player, IChatComponent chatComponent){
-        player.addChatMessage(chatComponent);
+    public static void sendMessage(EntityPlayer player, ITextComponent chatComponent){
+        player.sendMessage(chatComponent);
     }
 
 
 
     @SuppressWarnings("unchecked")
     public static List<IRecipe> getRecipesForProduct(ItemStack prod) {
-        List<IRecipe> recipes = new ArrayList<IRecipe>(CraftingManager.getInstance().getRecipeList());
+        List<IRecipe> recipes = new ArrayList<IRecipe>();
         List<IRecipe> ret = new ArrayList<IRecipe>();
 
         for (IRecipe recipe : recipes) {
@@ -521,15 +661,15 @@ public class PCUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<ItemStack>[][] getExpectedInput(IRecipe recipe, int width, int hight) {
-        List<ItemStack>[][] list;
+    public static List<Ingredient>[][] getExpectedInput(IRecipe recipe, int width, int hight) {
+        List<Ingredient>[][] list;
         int w = width;
         int h = hight;
         if (recipe instanceof ShapedRecipes) {
             ShapedRecipes sr = (ShapedRecipes)recipe;
             int sizeX = sr.recipeWidth;
             int sizeY = sr.recipeHeight;
-            ItemStack[] stacks = sr.recipeItems;
+            NonNullList<Ingredient> stacks = sr.recipeItems;
             if (w == -1)
                 w = sizeX;
             if (h == -1)
@@ -540,17 +680,17 @@ public class PCUtils {
             int i = 0;
             for (int y = 0; y < sizeY; y++) {
                 for (int x = 0; x < sizeX; x++) {
-                    if (i < stacks.length) {
-                        if (stacks[i] != null) {
-                            list[x][y] = new ArrayList<ItemStack>();
-                            list[x][y].add(stacks[i]);
+                    if (i < stacks.size()) {
+                        if (stacks.get(i) != stacks.get(0)) {
+                            list[x][y] = new ArrayList<Ingredient>();
+                            list[x][y].add(stacks.get(i));
                         }
                     }
                     i++;
                 }
             }
         } else if (recipe instanceof ShapelessRecipes) {
-            List<ItemStack> stacks = ((ShapelessRecipes) recipe).recipeItems;
+            NonNullList<Ingredient> stacks = ((ShapelessRecipes) recipe).recipeItems;
             if (w == -1)
                 w = stacks.size();
             if (h == -1)
@@ -562,7 +702,7 @@ public class PCUtils {
             for (int y = 0; y < h; y++) {
                 for (int x = 0; x < w; x++) {
                     if (i < stacks.size()) {
-                        list[x][y] = new ArrayList<ItemStack>();
+                        list[x][y] = new ArrayList<Ingredient>();
                         list[x][y].add(stacks.get(i));
                     }
                     i++;
@@ -570,8 +710,8 @@ public class PCUtils {
             }
         } else if (recipe instanceof ShapedOreRecipe){
             ShapedOreRecipe sor = (ShapedOreRecipe)recipe;
-            int sizeX = PCFields.ShapedOreRecipe_width.getValue(sor).intValue();
-            Object[] stacks = sor.getInput();
+            int sizeX = PCFields.ShapedOreRecipe_width.getValue(sor);
+            Object[] stacks = sor.getIngredients().toArray();
             int sizeY = stacks.length/sizeX;
             if (w == -1)
                 w = sizeX;
@@ -591,7 +731,7 @@ public class PCUtils {
             }
         } else if (recipe instanceof ShapelessOreRecipe){
             ShapelessOreRecipe sor = (ShapelessOreRecipe)recipe;
-            List<Object> stacks = sor.getInput();
+            List<Object> stacks = Collections.singletonList(sor.getRecipeOutput());
             if (w == -1)
                 w = stacks.size();
             if (h == -1)
@@ -615,13 +755,13 @@ public class PCUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static List<ItemStack> getItemStacksForOreItem(Object oreItem) {
+    public static List<Ingredient> getItemStacksForOreItem(Object oreItem) {
         if(oreItem instanceof ItemStack){
-            List<ItemStack> list = new ArrayList<ItemStack>();
-            list.add((ItemStack) oreItem);
+            List<Ingredient> list = new ArrayList<Ingredient>();
+            list.add((Ingredient) oreItem);
             return list;
         }else if(oreItem instanceof List){
-            return new ArrayList<ItemStack>((List<ItemStack>) oreItem);
+            return new ArrayList<Ingredient>((List<Ingredient>) oreItem);
         }
         return null;
     }

@@ -1,9 +1,14 @@
 package com.rumaruka.powercraft.api;
 
 import com.rumaruka.powercraft.api.PCResourceReloadListener.IResourceReloadLisener;
+import com.rumaruka.powercraft.api.PCTickHandler.IBaseTickHandler;
+import com.rumaruka.powercraft.api.block.PCTileEntity;
+import com.rumaruka.powercraft.api.entity.IEntityPC;
+import com.rumaruka.powercraft.api.entity.PCEntityType;
 import com.rumaruka.powercraft.api.network.PCPacket;
 import com.rumaruka.powercraft.api.network.PCPacketHandler;
 import net.minecraft.entity.Entity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
@@ -41,13 +46,14 @@ public class PCRegistry {
         PCPacketHandler.registerPacket(packet);
     }
 
-    public static <E extends Entity & IEntityPC>void registerEntity(Class<? extends Entity> entity, String name, int entityTypeID, PCModule module, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, PCEntityType<E> type) {
-        INSTANCE.iRegisterEntity(entity, name, entityTypeID, module, trackingRange, updateFrequency, sendsVelocityUpdates, type);
+    public static <E extends Entity & IEntityPC>void registerEntity(ResourceLocation registryNamePC,Class<? extends Entity> entity, String name, int entityTypeID, PCModule module, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, PCEntityType<E> type) {
+        INSTANCE.iRegisterEntity(registryNamePC,entity, name, entityTypeID, module, trackingRange, updateFrequency, sendsVelocityUpdates, type);
     }
 
     @SuppressWarnings({ "static-method", "unused" })
-    <E extends Entity & IEntityPC>void iRegisterEntity(Class<? extends Entity> entity, String name, int entityTypeID, PCModule module, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, PCEntityType<E> type){
-        EntityRegistry.registerModEntity(entity, name, entityTypeID, module, trackingRange, updateFrequency, sendsVelocityUpdates);
+    <E extends Entity & IEntityPC>void iRegisterEntity(ResourceLocation registryNamePC, Class<? extends Entity> entity, String name, int entityTypeID, PCModule module, int trackingRange, int updateFrequency, boolean sendsVelocityUpdates, PCEntityType<E> type){
+        EntityRegistry.registerModEntity(registryNamePC,entity, name, entityTypeID, module, trackingRange, updateFrequency, sendsVelocityUpdates);
+
     }
 
     static void playSound(double x, double y, double z, String sound, float soundVolume, float pitch) {

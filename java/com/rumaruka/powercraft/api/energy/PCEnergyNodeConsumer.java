@@ -20,13 +20,13 @@ final class PCEnergyNodeConsumer extends PCEnergyNode<IEnergyGridConsumer> {
     @Override
     public void onTickStart(){
         this.useable = 0;
-        this.requested = getTiles().getEnergyRequested();
-        this.maxWorkPercent = getTiles().getMaxPercentToWork();
+        this.requested = getEnergyTile().getEnergyRequested();
+        this.maxWorkPercent = getEnergyTile().getMaxPercentToWork();
     }
 
     @Override
     public void onTickEnd() {
-        getTiles().useEnergy(this.useable);
+        getEnergyTile().useEnergy(this.useable);
     }
 
     @Override

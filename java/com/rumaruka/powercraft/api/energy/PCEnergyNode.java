@@ -11,7 +11,7 @@ abstract class PCEnergyNode<T extends IEnergyGridTile> extends PCNode<PCEnergyGr
     }
 
     @SuppressWarnings("unchecked")
-    public T getTiles(){
+    public T getEnergyTile(){
         return (T)this.tile;
     }
 

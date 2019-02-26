@@ -77,7 +77,9 @@ public class PCLogger {
 
         log(Level.SEVERE, msg, param);
     }
-
+    public static void finer(String msg,Object... param){
+        log(Level.FINER,msg,param);
+    }
 
 
     private PCLogger(){

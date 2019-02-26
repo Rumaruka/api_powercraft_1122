@@ -23,4 +23,5 @@ public interface IItemPC {
     public String[] getOreNames();
 
     public float updateDigSpeed(ItemStack itemStack, float speed, int x, int y, int z, EntityPlayer entityPlayer);
+    void initRecipes();
 }

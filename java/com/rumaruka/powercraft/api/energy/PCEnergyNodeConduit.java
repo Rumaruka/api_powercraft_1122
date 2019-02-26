@@ -7,7 +7,7 @@ final class PCEnergyNodeConduit extends PCEnergyNode<IEnergyGridConduit> {
     }
 
     public float getMaxEnergy(){
-        return getTiles().getMaxEnergy();
+        return getEnergyTile().getMaxEnergy();
     }
 
     @Override

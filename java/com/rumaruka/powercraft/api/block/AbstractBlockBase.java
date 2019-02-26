@@ -1,11 +1,16 @@
 package com.rumaruka.powercraft.api.block;
 
+import com.rumaruka.powercraft.api.IPC3DRotation;
 import com.rumaruka.powercraft.api.PCBlockTemperatures;
 import com.rumaruka.powercraft.api.PCModule;
 import com.rumaruka.powercraft.api.PCUtils;
+import com.rumaruka.powercraft.api.beam.EnumBeamHitResult;
+import com.rumaruka.powercraft.api.beam.IBeam;
 import com.rumaruka.powercraft.api.redstone.IRedstoneConnectable;
 import com.rumaruka.powercraft.api.registry.BlockRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDoor;
+import net.minecraft.block.BlockTrapDoor;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -114,9 +119,9 @@ public abstract class AbstractBlockBase extends Block implements IRedstoneConnec
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB box, List<AxisAlignedBB> list, @Nullable Entity entityIn, boolean isActualState) {
-        List<AxisAlignedBB> boxes = getCollisionBoundingBoxes(world, x, y, z, entity);
+        List<AxisAlignedBB> boxes = getCollisionBoundingBoxes(world, pos, entityIn);
         if(boxes==null){
-            AxisAlignedBB b = getCollisionBoundingBoxFromPool(world, x, y, z);
+            AxisAlignedBB b = getBoundingBox(state,world, pos);
             if(b.intersects(box)){
                 list.add(b);
             }
@@ -129,6 +134,17 @@ public abstract class AbstractBlockBase extends Block implements IRedstoneConnec
             }
         }
     }
+    public List<AxisAlignedBB> getCollisionBoundingBoxes(World world, BlockPos pos, Entity entity){
+        return null;
+    }
+
+
+    @Override
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        return super.getBoundingBox(state, source, pos);
+    }
+
+    public abstract IPC3DRotation getRotation(IBlockAccess world, int x, int y, int z);
     @SuppressWarnings("static-method")
     public int getTemperature() {
         return PCBlockTemperatures.DEFAULT_TEMPERATURE;
@@ -139,4 +155,15 @@ public abstract class AbstractBlockBase extends Block implements IRedstoneConnec
     }
 
     public abstract void generate(Random random, int chunkX, int chunkZ, World world, IChunkGenerator chunkGenerator, IChunkProvider chunkProvider);
+
+    @SuppressWarnings({ "static-method", "unused" })
+    public EnumBeamHitResult onHitByBeam(World world, int x, int y, int z, IBeam beam){
+        return EnumBeamHitResult.STANDARD;
+    }
+
+    @SuppressWarnings({ "static-method", "unused" })
+    public boolean canBeHarvested(World world, int x, int y, int z) {
+        return false;
+    }
+
 }

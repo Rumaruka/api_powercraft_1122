@@ -1,6 +1,7 @@
 package com.rumaruka.powercraft.api;
 
 import com.rumaruka.powercraft.api.block.AbstractBlockBase;
+import com.rumaruka.powercraft.api.block.PCBlocks;
 import com.rumaruka.powercraft.api.entity.IEntityPC;
 import com.rumaruka.powercraft.api.item.IItemPC;
 import com.rumaruka.powercraft.api.reflect.PCSecurity;
@@ -84,7 +85,7 @@ public class PCForgeHandler implements IFuelHandler, IWorldGenerator {
         if(itemStack.isEmpty()){
             Item item = itemStack.getItem();
             if(item instanceof IItemPC){
-                speed.getNewSpeed() = ((IItemPC)item).updateDigSpeed(itemStack, speed.getNewSpeed(), speed.getPos().getX(), speed.getPos().getY(), speed.getPos().getZ(), speed.getEntityPlayer());
+                speed.setNewSpeed(((IItemPC)item).updateDigSpeed(itemStack, speed.getNewSpeed(), speed.getPos().getX(), speed.getPos().getY(), speed.getPos().getZ(), speed.getEntityPlayer()));
             }
         }
     }

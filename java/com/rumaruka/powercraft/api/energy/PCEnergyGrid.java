@@ -71,7 +71,7 @@ public class PCEnergyGrid extends PCGrid<PCEnergyGrid, IEnergyGridTile, PCEnergy
     }
 
     public static void setEnergyModulePresent() {
-        PCSecurity.allowedCaller("PC_EnergyGrid.setEnergyModulePresent", "powercraft.energy.PCeg_Energy");
+        PCSecurity.allowedCaller("PCEnergyGrid.setEnergyModulePresent", "powercraft.energy.PCegEnergy");
         isEnergyModulePresent = true;
     }
 

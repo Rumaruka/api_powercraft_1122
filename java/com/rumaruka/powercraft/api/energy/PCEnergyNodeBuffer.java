@@ -20,15 +20,15 @@ final class PCEnergyNodeBuffer extends PCEnergyNode<IEnergyGridBuffer> implement
 
     @Override
     public void onTickStart() {
-        this.level = getTiles().getEnergyLevel();
-        this.maxIn = getTiles().getEnergyMaxIn();
-        this.maxOut = getTiles().getEnergyMaxOut();
+        this.level = getEnergyTile().getEnergyLevel();
+        this.maxIn = getEnergyTile().getEnergyMaxIn();
+        this.maxOut = getEnergyTile().getEnergyMaxOut();
         this.used = 0;
     }
 
     @Override
     public void onTickEnd() {
-        getTiles().addEnergy(this.used);
+        getEnergyTile().addEnergy(this.used);
     }
 
     @Override

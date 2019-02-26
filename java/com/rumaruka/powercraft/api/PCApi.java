@@ -2,6 +2,8 @@ package com.rumaruka.powercraft.api;
 
 
 import com.rumaruka.powercraft.api.block.PCBlocks;
+import com.rumaruka.powercraft.api.building.PCCropHarvesting;
+import com.rumaruka.powercraft.api.building.PCTreeHarvesting;
 import com.rumaruka.powercraft.api.dimension.PCDimensions;
 import com.rumaruka.powercraft.api.energy.PCEnergyGrid;
 import com.rumaruka.powercraft.api.entity.PCEntities;

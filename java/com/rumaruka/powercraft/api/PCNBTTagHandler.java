@@ -194,7 +194,7 @@ public final class PCNBTTagHandler {
             int size = list.tagCount();
             int[][] array = new int[size][];
             for(int i=0; i<size; i++){
-                array[i] = list.func_150306_c(i);
+                array[i] = list.getIntArrayAt(i);
             }
             return c.cast(array);
         }else if(c==double[].class){
@@ -202,7 +202,7 @@ public final class PCNBTTagHandler {
             int size = list.tagCount();
             double[] array = new double[size];
             for(int i=0; i<size; i++){
-                array[i] = list.func_150309_d(i);
+                    array[i] = list.getDoubleAt(i);
             }
             return c.cast(array);
         }else if(c==float[].class){
@@ -210,7 +210,7 @@ public final class PCNBTTagHandler {
             int size = list.tagCount();
             float[] array = new float[size];
             for(int i=0; i<size; i++){
-                array[i] = list.func_150308_e(i);
+                array[i] = list.getFloatAt(i);
             }
             return c.cast(array);
         }else if(c==ItemStack[].class){

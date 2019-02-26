@@ -20,13 +20,13 @@ final class PCEnergyNodeProvider extends PCEnergyNode<IEnergyGridProvider> {
     @Override
     public void onTickStart() {
         this.used = 0;
-        this.useable = getTiles().getEnergyUseable();
-        this.dynamic = getTiles().dynamic();
+        this.useable = getEnergyTile().getEnergyUseable();
+        this.dynamic = getEnergyTile().dynamic();
     }
 
     @Override
     public void onTickEnd() {
-        getTiles().takeEnergy(this.used);
+        getEnergyTile().takeEnergy(this.used);
     }
 
     @Override
