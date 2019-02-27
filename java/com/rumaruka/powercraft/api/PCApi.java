@@ -8,6 +8,7 @@ import com.rumaruka.powercraft.api.dimension.PCDimensions;
 import com.rumaruka.powercraft.api.energy.PCEnergyGrid;
 import com.rumaruka.powercraft.api.entity.PCEntities;
 import com.rumaruka.powercraft.api.gres.PCGres;
+import com.rumaruka.powercraft.api.item.PCItems;
 import com.rumaruka.powercraft.api.multiblock.PCMultiblocks;
 import com.rumaruka.powercraft.api.network.PCPacketHandler;
 import com.rumaruka.powercraft.api.script.miniscript.PCMiniscript;
