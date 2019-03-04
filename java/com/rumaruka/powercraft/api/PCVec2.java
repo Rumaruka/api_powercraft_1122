@@ -42,6 +42,10 @@ public class PCVec2 {
         this.x=vec.x;
         this.y=vec.y;
     }
+    public PCVec2 mul(double v) {
+        return new PCVec2(this.x * v, this.y * v);
+    }
+
     public PCVec2 add(PCVec2 vec){
         return new PCVec2(this.x+vec.x,this.y+vec.y);
     }

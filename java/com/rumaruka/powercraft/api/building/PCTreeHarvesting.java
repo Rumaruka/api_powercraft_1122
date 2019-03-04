@@ -2,7 +2,9 @@ package com.rumaruka.powercraft.api.building;
 
 import com.rumaruka.powercraft.api.*;
 import com.rumaruka.powercraft.api.reflect.PCSecurity;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import net.minecraft.block.Block;
@@ -46,8 +48,8 @@ public class PCTreeHarvesting implements ISpecialHarvesting{
         if(priority<2){
             return false;
         }
-        Block block = PCUtils.getBlock(world, x, y, z);
-        int meta = PCUtils.getMetadata(world, x, y, z);
+        Block block = PCUtils.getBlock(world, new BlockPos(x, y, z));
+        IBlockState meta = PCUtils.getMetadata(world, new BlockPos(x, y, z));
         return getTreeFor(block, meta)!=null;
     }
 

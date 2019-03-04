@@ -8,13 +8,12 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.ai.EntityAINearestAttackableTarget;
-import net.minecraft.entity.monster.IMob;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.inventory.InventoryLargeChest;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -682,7 +681,7 @@ public class PCInventoryUtils {
 
 
     public static int getMaxStackSize(ItemStack itemStack, Slot slot) {
-        if(slot.inventory instanceof PC_IInventorySizeOverrider){
+        if(slot.inventory instanceof IInventorySizeOverrider){
             return ((PC_IInventorySizeOverrider)slot.inventory).getMaxStackSize(itemStack, slot.getSlotIndex());
         }
         int maxStack = itemStack.getMaxStackSize();
